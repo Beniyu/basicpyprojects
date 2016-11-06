@@ -23,7 +23,7 @@ def fixname(name):
 		else:
 			goodname.append(name[i])
 	return ''.join(goodname)
-def playerchoice():
+def playerchoice(exemption):
 	global tournamentsize
 	global tournamentsubs
 	global TeamRed
@@ -37,7 +37,7 @@ def playerchoice():
 	TeamBlue=[]
 	TeamRedSubs=[]
 	TeamBlueSubs=[]
-	if input("(y/n) Do you want players to be added to the hotkey: ").lower()=="y":
+	if exemption=="y" or input("(y/n) Do you want players to be added to the hotkey: ").lower()=="y":
 		team1name=input("Team 1 name: ")
 		team2name=input("Team 2 name: ")
 		for i in range(0,tournamentsize+tournamentsubs):
@@ -240,7 +240,7 @@ def tournamentsettings():
 		if tournamentsize>=1 and tournamentsize<=4:
 			while True:
 				tournamentsubs=intcreate(input("How many maximum subs (per team): "))
-				if tournamentsubs>=1 and tournamentsubs<=4:
+				if tournamentsubs>=0 and tournamentsubs<=4:
 					break
 				else:
 					print("This program cannot handle more than 4 subs.")
@@ -347,12 +347,9 @@ def savefile(tournamentname):
 		os.rename("savefile-{}.txt".format(tournamentname),"savefile-{}.xddd".format(tournamentname))
 def scriptstart(realcount,playerstrue):
 	global scriptmain
-	global scriptinstructions
 	global tournamentname
 	global tournamentsize
 	global tournamentsubs
-	scriptmain=open("{}.txt".format(tournamentname),"w")
-	scriptinstructions=open("{} instructions.txt".format(tournamentname),"w")
 	scriptmain.write((""";{}{}{},{}
 #NoEnv
 SendMode Input
@@ -373,7 +370,9 @@ option=input("""0 - New Tournament File (destroys files with same tournament nam
 2 - Import map file\n""")
 if option=="0":
 	tournamentsettings()
-	playerchoice()
+	scriptmain=open("{}.txt".format(tournamentname),"w")
+	scriptinstructions=open("{} instructions.txt".format(tournamentname),"w")
+	playerchoice("n")
 	scriptstart(tournamentsize*2+len(TeamRedSubs)+len(TeamBlueSubs),play)
 	mappoolcreation()	
 	mappoolsavefile()
@@ -402,13 +401,13 @@ if option=="1":
 		file2.append(line)
 	if marker[-4:]=="yes\n":
 		players=int(marker[3:-5])
-		for i in range(0,int(marker[3:-5])*31+5):
+		for i in range(0,int(marker[3:-5])*31+4):
 			file.pop()
-		for i in range(0,int(marker[3])+5):
+		for i in range(0,int(marker[3])+15):
 			file2.pop()
 	else:
 		file.append("\n")
-	playerchoice()
+	playerchoice("y")
 	scriptmain=open("{}.txt".format(tournamentname),"w")
 	scriptinstructions=open("{} instructions.txt".format(tournamentname),"w")	
 	scriptmain.write(";{}{}{},yes\n".format(tournamentsize,tournamentsubs,(tournamentsize*2+len(TeamRedSubs)+len(TeamBlueSubs))))
@@ -435,13 +434,12 @@ if option=="2":
 			if int(mapmods)<1 or int(mapmods)>6:
 				print("Bad file (1)")
 				time.sleep(3)
-				quit()
 	except:
 		print("Bad file")
 		time.sleep(3)
 		quit()
 	tournamentsettings()
-	playerchoice()
+	playerchoice("n")
 	scriptstart(tournamentsize*2+len(TeamRedSubs)+len(TeamBlueSubs),play)
 	logmap(mappool)
 	playerwrite()
@@ -450,43 +448,68 @@ if option=="2":
 if option=="3":
 	inputmethod=input("""0 - Start from scratch
 1 - Import map file
-2 - Import from savefile""")
-	if option=="0":
+2 - Import from savefile\n""")
+	if inputmethod=="0":
 		tournamentsettings()
-		banamount=input("How many bans per team? ")
-		while True:
-			banformat=intcreate(input("""How are bans selected?
-0 - Alternating bans
-1 - Teams pick all their bans together
-"""))
-			if banformat<=0 or banformat>=1:
-				break
-		playerchoice()
+		playerchoice("y")
 		mappoolcreation()
 		mappoollist=[]
+		#map prep macros here
+		bannumber=intcreate(input("Bans per team: "))
+		bo=intcreate(input("Best of: "))
 		for i in range(0,len(mappool)):
-			mappoollist.append(mappool[i][1],letters[i])
-			print("Please ask captains to roll.")
-			if input("(1/2) Higher team: ") == "1":
-				team1=[team1name,"blue"]
+			mappoollist.append([mappool[i][1],letters[i]])
+		print("Please ask captains to roll.")
+		roll=input("(1/2) Higher team: ")
+		if roll=="1":
+			team1=[team1name,"blue"]
+			team2=[team2name,"red"]
+		else:
+			team1=[team2name,"red"]
+			team2=[team1name,"blue"]
+		warmup=[]
+		team1bans=[]
+		team2bans=[]
+		for i in range(0,2):
+			warmup.append(input("Warmup: "))
+		for i in range(0,len(mappool)):
+			print("{} - {}".format(mappool[i][1],letters[i]))
+		print("(use map letters, not name)")
+		for i in range(0,bannumber*2):
+			print(i/2)
+			if (i/2).is_integer():
+				team1bans.append(input("Team ({}) Ban {}: ".format(team1[0],int((i+2)/2))))
 			else:
-				team2=[team2name,"red"]
-			warmup=[]
-			bans=[]
-			team1bans=[]
-			team2bans=[]
-			for i in range(0,2):
-				warmup.append(input("Warmup: "))
-			for i in range(0,len(mappool)):
-				print("{} - {}".format(mappool[i][1],letters[i]))
-			for i in range(0,banamount*2):
-				if i=="0":
-					   print("(use map letters, not name)")
-				if (i/2).is_integer:
-					team1bans.append(input("Banned map ({}): "))
-				else:
-					team2bans.append(input("Banned map ({}): "))		
-		mappoolsavefile()		
+				team2bans.append(input("Team ({}) Ban {}: ".format(team2[0],int((i+1)/2))))
+		tempscript=open("tempscript.txt","w")
+		tempscript.write("""SendMode Input
+^F2::\n""")
+		better1bans=[]
+		better2bans=[]
+		for i in range(0,bannumber):
+			for j in range(0,len(mappool))):
+				if team1bans[i]==letters[j]:
+					better1bans.append(mappool[j][1])
+		for i in range(0,bannumber):
+			for j in range(0,len(mappool))):
+				if team2bans[i]==letters[j]:
+					better2bans.append(mappool[j][1])
+		if roll=="1":
+			tempscript.write("""	Send 	{} bans: {{SHIFT}}{{ENTER}}
+	Send 	{} {{SHIFT}}{{ENTER}}
+	Send	{} bans: {{SHIFT}}{{ENTER}}
+	Send 	{} {{ENTER}}
+ExitApp""".format(team1name," & ".join(better1bans),team2name," & ".join(team2bans)))
+		else:
+			tempscript.write("""	Send 	{} bans: {{SHIFT}}{{ENTER}}
+	Send 	{} {{SHIFT}}{{ENTER}}
+	Send	{} bans: {{SHIFT}}{{ENTER}}
+	Send 	{} {{ENTER}}
+ExitApp""".format(team1name," & ".join(better2bans),team2name," & ".join(team1bans)))
+		tempscript.close()
+		os.rename("tempscript.txt","tempscript.ahk")
+		os.startfile("tempscript.ahk")
+		mappoolsavefile() 
 if option=="4":
 	while True:
 		try:
