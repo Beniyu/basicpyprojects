@@ -13,6 +13,3 @@ while True:
     time.sleep(1)
     timer=timer+1
     realtimer=realtimer+1
-            
-            
-    
