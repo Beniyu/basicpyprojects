@@ -3,25 +3,25 @@ import time
 letters="qwertyuiopasdfghjklzxcvbnm"
 def intcreate(number):
 	numbers=[]
-	for i in range(0,len(number)):
-		if number[i].isdigit():
-				numbers.append(number[i])
+	for i in number:
+		if i.isdigit():
+			numbers.append(i)
 	return int(''.join(numbers))
 def osufriendlyname(name):
 	goodname=[]
-	for i in range(0,len(name)):
-		if name[i]==" ":
+	for i in name:
+		if i==" ":
 			goodname.append("_")
 		else:
-			goodname.append(name[i])
+			goodname.append(i)
 	return ''.join(goodname)
 def fixname(name):
 	goodname=[]
-	for i in range(0,len(name)):
-		if name[i]=="_":
+	for i in name:
+		if i=="_":
 			goodname.append(" ")
 		else:
-			goodname.append(name[i])
+			goodname.append(i)
 	return ''.join(goodname)
 def playerchoice(exemption):
 	global tournamentsize
@@ -40,24 +40,25 @@ def playerchoice(exemption):
 	if exemption=="y" or input("(y/n) Do you want players to be added to the hotkey: ").lower()=="y":
 		team1name=input("Team 1 name: ")
 		team2name=input("Team 2 name: ")
-		for i in range(0,tournamentsize+tournamentsubs):
-			if i<tournamentsize:
-				TeamBlue.append(input(("Team ({}) Player {}: ").format(team1name,i+1)))	
-			else:
-				sub=input(("(leave blank if none) Team ({}) Sub {}: ").format(team1name,i+1-tournamentsize))
-				if sub!="":
-					TeamBlueSubs.append(sub)
-				else:
-					break
-		for i in range(0,tournamentsize+tournamentsubs):
-			if i<tournamentsize:
-				TeamRed.append(input(("Team ({}) Player {}: ").format(team2name,i+1)))
-			else:
-				sub=input(("(leave blank if none) Team ({}) Sub {}: ").format(team2name,i+1-tournamentsize))
-				if sub!="":
-					TeamRedSubs.append(sub)
-				else:
-					break
+#		for i in range(0,tournamentsize+tournamentsubs):
+#			if i<tournamentsize:
+#				TeamBlue.append(input(("Team ({}) Player {}: ").format(team1name,i+1)))	
+#			else:
+#				sub=input(("(leave blank if none) Team ({}) Sub {}: ").format(team1name,i+1-tournamentsize))
+#				if sub!="":
+#					TeamBlueSubs.append(sub)
+#				else:
+#					break
+#		for i in range(0,tournamentsize+tournamentsubs):
+#			if i<tournamentsize:
+#				TeamRed.append(input(("Team ({}) Player {}: ").format(team2name,i+1)))
+#			else:
+#				sub=input(("(leave blank if none) Team ({}) Sub {}: ").format(team2name,i+1-tournamentsize))
+#				if sub!="":
+#					TeamRedSubs.append(sub)
+#				else:
+#					break
+				
 		play="yes"
 	else:
 		play="no"
