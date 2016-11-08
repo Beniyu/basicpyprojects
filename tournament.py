@@ -1,6 +1,8 @@
 import os
 import time
 letters="qwertyuiopasdfghjklzxcvbnm"
+def cls():
+    os.system('cls' if os.name=='nt' else 'clear')
 def intcreate(number):
 	numbers=[]
 	for i in number:
@@ -38,8 +40,15 @@ def playerchoice(exemption):
 	TeamRedSubs=[]
 	TeamBlueSubs=[]
 	if exemption=="y" or input("(y/n) Do you want players to be added to the hotkey: ").lower()=="y":
-		team1name=input("Team 1 name: ")
-		team2name=input("Team 2 name: ")
+                for i in range(1,3)
+                        while True:
+		                teamtemp=input("Team {} name: ")
+                                if input('(y/n) Confirm? ').lower()=='y':
+                                        exec("team{}name=teamtemp".format(i))
+                                        break
+                while True:
+                        print('Team 1:')
+                        for
 #		for i in range(0,tournamentsize+tournamentsubs):
 #			if i<tournamentsize:
 #				TeamBlue.append(input(("Team ({}) Player {}: ").format(team1name,i+1)))	
