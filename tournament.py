@@ -4,11 +4,7 @@ letters="qwertyuiopasdfghjklzxcvbnm"
 def cls():
     os.system('cls' if os.name=='nt' else 'clear')
 def intcreate(number):
-	numbers=[]
-	for i in number:
-		if i.isdigit():
-			numbers.append(i)
-	return int(''.join(numbers))
+	return int(''.join([i for i in number if i.isdigit()))
 def osufriendlyname(name):
 	goodname=[]
 	for i in name:
