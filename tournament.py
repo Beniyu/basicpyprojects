@@ -36,15 +36,19 @@ def playerchoice(exemption):
 	TeamRedSubs=[]
 	TeamBlueSubs=[]
 	if exemption=="y" or input("(y/n) Do you want players to be added to the hotkey: ").lower()=="y":
-                for i in range(1,3)
-                        while True:
-		                teamtemp=input("Team {} name: ")
-                                if input('(y/n) Confirm? ').lower()=='y':
-                                        exec("team{}name=teamtemp".format(i))
-                                        break
-                while True:
-                        print('Team 1:')
-                        for
+		for i in range(3):
+			while True:
+				teamtemp=input("Team {} name: ")
+				if input('(y/n) Confirm? ').lower()=='y':
+					exec("team{}name=teamtemp".format(i))
+				break
+		while True:
+			print('Team 1:')
+			for player in TeamBlue:
+				print(player)
+                        for player in TeamBlueSubs:
+                        	p
+                   
 #		for i in range(0,tournamentsize+tournamentsubs):
 #			if i<tournamentsize:
 #				TeamBlue.append(input(("Team ({}) Player {}: ").format(team1name,i+1)))	
