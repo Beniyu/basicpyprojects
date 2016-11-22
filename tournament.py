@@ -31,18 +31,31 @@ def playerchoice(exemption):
 	global team1name
 	global team2name
 	global play
-	TeamRed=[]
-	TeamBlue=[]
-	TeamRedSubs=[]
-	TeamBlueSubs=[]
+        Team1={
+        'color':'Blue',
+        'main':[],
+        'subs':[],
+        'name':""
+}
+        Team2={
+        'color':'Red',
+        'main':[],
+        'subs':[],
+        'name':""
+}
+        Teams=[Team1,Team2]
 	if exemption=="y" or input("(y/n) Do you want players to be added to the hotkey: ").lower()=="y":
-		for i in range(3):
+		for i in range(2):
 			while True:
-				teamtemp=input("Team {} name: ")
+				buffer=input("Team {} name: ".format(i+1))
 				if input('(y/n) Confirm? ').lower()=='y':
-					exec("team{}name=teamtemp".format(i))
-				break
-		while True:
+					Teams['name'][i]=buffer
+                                        break
+                print("Put * before name if player is a sub.")
+		for i in range(2):
+                        while True:
+                                
+                                   
 			print('Team 1:')
 			for player in TeamBlue:
 				print(player)
@@ -240,25 +253,32 @@ F4 for generic message on asking if player is ready""")
 	scriptmain.close()
 	scriptinstructions.close()
 def tournamentsettings():
-	global tournamentname
-	global tournamentsize
-	global tournamentsubs
-	global tournamentmode
-	tournamentname=input("Tournament abbreviation: ")
-	while True:
-		tournamentsize=intcreate(input("Tournament team size: "))
-		if tournamentsize>=1 and tournamentsize<=4:
-			while True:
-				tournamentsubs=intcreate(input("How many maximum subs (per team): "))
-				if tournamentsubs>=0 and tournamentsubs<=4:
-					break
-				else:
-					print("This program cannot handle more than 4 subs.")
-			break
-	if tournamentsize==1:
-		tournamentmode="0"
-	else:
-		tournamentmode="2"
+        while True:
+                name=input("Tournament abbreviation: ")
+                while True:
+                        size=intcreate(input("Tournament team size: "))
+                        if size>=1 and size<=4:
+                        	while True:
+                        		subs=intcreate(input("How many maximum subs (per team): "))
+                        		if subs>=0 and subs<=4:
+                        			break
+                        		else:
+                        			print("This program cannot handle more than 4 subs.")
+                        	break
+                if size==1:
+                	tmode="0"
+                else:
+                        mode="2"
+                if input("""Tournament name: {}
+Tournament team size: {}
+Subs per team: {}
+(y/n) Confirm? """).lower() == "y":
+                        tournamentsettings={
+    'name': name,
+    'size': size,
+    'subs': subs,
+    'mode': mode
+}
 def mappoolcreation():
 	global mappool
 	mappool=[]
