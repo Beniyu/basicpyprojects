@@ -1,8 +1,14 @@
 import os
 import time
 letters="qwertyuiopasdfghjklzxcvbnm"
+def listcheck(a,b):
+        for entity in a:
+                if entity==b:
+                        return False
+                else:
+                        return True
 def cls():
-    os.system('cls' if os.name=='nt' else 'clear')
+        os.system('cls' if os.name=='nt' else 'clear')
 def intcreate(number):
 	return int(''.join([i for i in number if i.isdigit()))
 def osufriendlyname(name):
@@ -35,13 +41,11 @@ def playerchoice(exemption):
         'color':'Blue',
         'main':[],
         'subs':[],
-        'name':""
 }
         Team2={
         'color':'Red',
         'main':[],
         'subs':[],
-        'name':""
 }
         Teams=[Team1,Team2]
 	if exemption=="y" or input("(y/n) Do you want players to be added to the hotkey: ").lower()=="y":
@@ -50,10 +54,42 @@ def playerchoice(exemption):
 				buffer=input("Team {} name: ".format(i+1))
 				if input('(y/n) Confirm? ').lower()=='y':
 					Teams['name'][i]=buffer
-                                        break
-                print("Put * before name if player is a sub.")
+					break
 		for i in range(2):
-                        while True:
+			while True:
+                                cls()
+                                print("""Put * before name if player is a sub. Put - before name if deleting. Type confirm when finished.")
+Team {}:
+Main players:""".format(i+1))
+                   		for player in Teams['main'][i]:
+                                        print(player)
+                                print("Subs:")
+                                for player in Teams['subs'][i]:
+                                        print("*{}".format(player))
+                                buffer=input("Enter name: ")
+                                if buffer.lower()=="confirm":
+                                        if len(Teams['main'][i])==settings['size']:
+                                                break
+                                        else:
+                                                print("Not enough main players.")
+                                if buffer[0]=="-":
+                                        try:
+                                                Teams['main'][i].delete(buffer[1:])
+                                                print("Main player {} deleted.".format(buffer[1:]))
+                                        except:
+                                                try:
+                                                        Teams['subs'][i].delete(buffer[1:])
+                                                        print("Sub {} deleted.".format(buffer[1:]))
+                                                except:
+                                                        print("No player found with this name.")
+                                if listcheck(Teams['subs'][i],buffer[1:])==False or listcheck(Teams['main'][i],buffer[1:])==False:
+                                        print("Player with this name already found.")  
+                                elif buffer[0]=="*" and Teams['subs'][i]<settings['subs']:
+                                        Teams['subs'][i].append(buffer[1:])
+                                elif Teams['main'][i]<settings['main'] :
+                                        Teams['main'][i].append(buffer[1:])
+                                else:
+                                        print("You have reached the maximum amount of players for this category.")
                                 
                                    
 			print('Team 1:')
