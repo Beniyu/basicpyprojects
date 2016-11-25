@@ -28,27 +28,18 @@ def fixname(name):
 			goodname.append(i)
 	return ''.join(goodname)
 def playerchoice(exemption):
-	global tournamentsize
-	global tournamentsubs
-	global TeamRed
-	global TeamBlue
-	global TeamRedSubs
-	global TeamBlueSubs
-	global team1name
-	global team2name
-	global play
-        Team1={
+        global settings
+        teams=[{
         'color':'Blue',
         'main':[],
         'subs':[],
-}
-        Team2={
+},{
         'color':'Red',
         'main':[],
         'subs':[],
-}
-        Teams=[Team1,Team2]
+}]
 	if exemption=="y" or input("(y/n) Do you want players to be added to the hotkey: ").lower()=="y":
+                settings['players']==True
 		for i in range(2):
 			while True:
 				buffer=input("Team {} name: ".format(i+1))
@@ -61,85 +52,54 @@ def playerchoice(exemption):
                                 print("""Put * before name if player is a sub. Put - before name if deleting. Type confirm when finished.")
 Team {}:
 Main players:""".format(i+1))
-                   		for player in Teams['main'][i]:
+                   		for player in teams['main'][i]:
                                         print(player)
                                 print("Subs:")
-                                for player in Teams['subs'][i]:
+                                for player in teams['subs'][i]:
                                         print("*{}".format(player))
                                 buffer=input("Enter name: ")
                                 if buffer.lower()=="confirm":
-                                        if len(Teams['main'][i])==settings['size']:
+                                        if len(teams['main'][i])==settings['size']:
                                                 break
                                         else:
                                                 print("Not enough main players.")
                                 if buffer[0]=="-":
                                         try:
-                                                Teams['main'][i].delete(buffer[1:])
+                                                teams['main'][i].delete(buffer[1:])
                                                 print("Main player {} deleted.".format(buffer[1:]))
                                         except:
                                                 try:
-                                                        Teams['subs'][i].delete(buffer[1:])
+                                                        teams['subs'][i].delete(buffer[1:])
                                                         print("Sub {} deleted.".format(buffer[1:]))
                                                 except:
                                                         print("No player found with this name.")
-                                if listcheck(Teams['subs'][i],buffer[1:])==False or listcheck(Teams['main'][i],buffer[1:])==False:
+                                if listcheck(teams['subs'][i],buffer[1:])==False or listcheck(teams['main'][i],buffer[1:])==False:
                                         print("Player with this name already found.")  
-                                elif buffer[0]=="*" and Teams['subs'][i]<settings['subs']:
-                                        Teams['subs'][i].append(buffer[1:])
-                                elif Teams['main'][i]<settings['main'] :
-                                        Teams['main'][i].append(buffer[1:])
+                                elif buffer[0]=="*" and teams['subs'][i]<settings['subs']:
+                                        teams['subs'][i].append(buffer[1:])
+                                elif teams['main'][i]<settings['main'] :
+                                        teams['main'][i].append(buffer[1:])
                                 else:
                                         print("You have reached the maximum amount of players for this category.")
-                                
-                                   
-			print('Team 1:')
-			for player in TeamBlue:
-				print(player)
-                        for player in TeamBlueSubs:
-                        	p
-                   
-#		for i in range(0,tournamentsize+tournamentsubs):
-#			if i<tournamentsize:
-#				TeamBlue.append(input(("Team ({}) Player {}: ").format(team1name,i+1)))	
-#			else:
-#				sub=input(("(leave blank if none) Team ({}) Sub {}: ").format(team1name,i+1-tournamentsize))
-#				if sub!="":
-#					TeamBlueSubs.append(sub)
-#				else:
-#					break
-#		for i in range(0,tournamentsize+tournamentsubs):
-#			if i<tournamentsize:
-#				TeamRed.append(input(("Team ({}) Player {}: ").format(team2name,i+1)))
-#			else:
-#				sub=input(("(leave blank if none) Team ({}) Sub {}: ").format(team2name,i+1-tournamentsize))
-#				if sub!="":
-#					TeamRedSubs.append(sub)
-#				else:
-#					break
-				
-		play="yes"
-	else:
-		play="no"
-def playerwrite():
-	if play=="yes":
-		global TeamRed
-		global TeamBlue
-		global TeamRedSubs
-		global TeamBlueSubs
-		global team1name
-		global team2name
-		global scriptmain
-		global scriptinstructions
-		global tournamentsize
-		global tournamentname
-		team1hotkeys=["F5","F6","F7","F8"]
-		team2hotkeys=["F9","F10","F11","F12"]
+                return teams
+def playerwrite(settings,scriptmain,scriptinstructions):
+	if settings['players']==True:
+                hotkey=[["F5","F6","F7","F8"],["F9","F10","F11","F12"]]
 		scriptmain.write((""">^F1::
 	Send,	{{!}}mp make {}: ({}) vs ({})
 Return\n\n""").format(tournamentname,team1name,team2name))
-		for i in range(0,tournamentsize+len(TeamBlueSubs)):
-			if i<tournamentsize:
-				scriptmain.write((""">^{0}::
+                for i in range(2):
+                        for j in range(2):
+                                if j==0:
+                                        playertype='main'
+                                        scriptinstructions.write(("-----------------\nTeam {} players ({}):\n".format(teams['color'][i])))
+                                else:
+                                        playertype='subs'
+                                for player in range(len(teams[playertype][i])):
+                                        playerbuffer=osufriendlyname(teams[player][playertype][i]
+                                        if j==1:
+                                                playerbuffer="*{}".format(playerbuffer)
+                                        scriptmain.write((""">^{0}::
 	loop {{		
 		if GetKeyState("1","P")=1
 			{{
@@ -167,115 +127,10 @@ Return\n\n""").format(tournamentname,team1name,team2name))
 			}}
 	}}
 	Sleep,  1000
-	Send,	{{!}}mp team {1} blue {{ENTER}}
-Return\n\n""").format(team1hotkeys[i],osufriendlyname(TeamBlue[i])))
-			else:
-				scriptmain.write((""">+{0}::
-	loop {{		
-		if GetKeyState("1","P")=1
-			{{
-			Send,	{{BACKSPACE}}{{!}}mp move {1} 1 {{ENTER}}
-			break
-			}}
-		if GetKeyState("2", "P")=1
-			{{
-			Send,	{{BACKSPACE}}{{!}}mp move {1} 2 {{ENTER}}
-			break
-			}}
-		if GetKeyState("3", "P")=1
-			{{
-			Send,	{{BACKSPACE}}{{!}}mp move {1} 3 {{ENTER}}
-			break
-			}}
-		if GetKeyState("4", "P")=1
-			{{
-			Send,	{{BACKSPACE}}{{!}}mp move {1} 4 {{ENTER}}
-			break
-			}}
-		if GetKeyState("ESC", "P")=1
-			{{
-			Return
-			}}
-	}}
-	Sleep,  1000
-	Send,	{{!}}mp team {1} blue {{ENTER}}
-Return\n\n""").format(team1hotkeys[i-tournamentsize],osufriendlyname(TeamBlueSubs[i-tournamentsize])))
-		for i in range(0,tournamentsize+len(TeamRedSubs)):
-			if i<tournamentsize:
-				scriptmain.write((""">^{0}::
-	loop {{		
-		if GetKeyState("1","P")=1
-			{{
-			Send,	{{BACKSPACE}}{{!}}mp move {1} 1 {{ENTER}}
-			break
-			}}
-		if GetKeyState("2", "P")=1
-			{{
-			Send,	{{BACKSPACE}}{{!}}mp move {1} 2 {{ENTER}}
-			break
-			}}
-		if GetKeyState("3", "P")=1
-			{{
-			Send,	{{BACKSPACE}}{{!}}mp move {1} 3 {{ENTER}}
-			break
-			}}
-		if GetKeyState("4", "P")=1
-			{{
-			Send,	{{BACKSPACE}}{{!}}mp move {1} 4 {{ENTER}}
-			break
-			}}
-		if GetKeyState("ESC", "P")=1
-			{{
-			Return
-			}}
-	}}
-	Sleep,  1000
-	Send,	{{!}}mp team {1} red {{ENTER}}
-Return\n\n""").format(team2hotkeys[i],osufriendlyname(TeamRed[i])))
-			else:
-				scriptmain.write((""">+{0}::
-	loop {{		
-		if GetKeyState("1","P")=1
-			{{
-			Send,	{{BACKSPACE}}{{!}}mp move {1} 1 {{ENTER}}
-			break
-			}}
-		if GetKeyState("2", "P")=1
-			{{
-			Send,	{{BACKSPACE}}{{!}}mp move {1} 2 {{ENTER}}
-			break
-			}}
-		if GetKeyState("3", "P")=1
-			{{
-			Send,	{{BACKSPACE}}{{!}}mp move {1} 3 {{ENTER}}
-			break
-			}}
-		if GetKeyState("4", "P")=1
-			{{
-			Send,	{{BACKSPACE}}{{!}}mp move {1} 4 {{ENTER}}
-			break
-			}}
-		if GetKeyState("ESC", "P")=1
-			{{
-			Return
-			}}
-	}}
-	Sleep,  1000
-	Send,	{{!}}mp team {1} red {{ENTER}}
-Return\n\n""").format(team2hotkeys[i-tournamentsize],osufriendlyname(TeamRedSubs[i-tournamentsize])))
-		scriptinstructions.write(("-----------------\nTeam Blue players ({}):\n").format(team1name))
-		for i in range(0,tournamentsize+len(TeamBlueSubs)):
-			if i<tournamentsize:
-					scriptinstructions.write(TeamBlue[i]+"\n")
-			else:
-				scriptinstructions.write(("*{}\n").format(TeamBlueSubs[i-tournamentsize]))
-		scriptinstructions.write(("-----------------\nTeam Red players ({}):\n").format(team2name))
-		for i in range(0,tournamentsize+len(TeamRedSubs)):
-			if i<tournamentsize:
-				scriptinstructions.write(TeamRed[i]+"\n")
-			else:
-				scriptinstructions.write(("*{}\n").format(TeamRedSubs[i-tournamentsize]))
-	scriptinstructions.write("""-----------------
+	Send,	{{!}}mp team {1} {2} {{ENTER}}
+Return\n\n""").format(hotkey[player][i],playerbuffer,hotkey[player][i]),teams['color'][i]))
+                                        scriptinstructions.write(playerbuffer,end="\n\n")
+        scriptinstructions.write("""-----------------
 Instructions:
 Use right control and designated key (etc: q) for changing maps.
 Use right control and F5-F12 keys to move players (F5-F8 for Team Blue and F9-F12 for Team Red)
@@ -287,7 +142,7 @@ F2 to add settings
 F3 to start match
 F4 for generic message on asking if player is ready""")
 	scriptmain.close()
-	scriptinstructions.close()
+	scriptinstructions.close()   
 def tournamentsettings():
         while True:
                 name=input("Tournament abbreviation: ")
@@ -309,14 +164,15 @@ def tournamentsettings():
 Tournament team size: {}
 Subs per team: {}
 (y/n) Confirm? """).lower() == "y":
-                        tournamentsettings={
+                        return {
     'name': name,
     'size': size,
     'subs': subs,
-    'mode': mode
-}
+    'mode': mode,
+    'players': False
+} 
+#remember to recode mappool creation
 def mappoolcreation():
-	global mappool
 	mappool=[]
 	while True:
 		maps=intcreate(input("How many maps in the map pool: "))
@@ -326,7 +182,7 @@ def mappoolcreation():
 			print("You can't have no maps.")
 		else:
 			break
-	for i in range(0,maps):
+	for i in range(maps):
 		mapid=input(("Map ID {}: ").format(i+1))
 		while True:
 			if mapid.isdigit()==False:
@@ -362,11 +218,11 @@ def logmap(mappool):
 			scriptinstructions.write("-----------------\nFreemod maps:\n")
 		if i==6:
 			scriptinstructions.write("-----------------\nTie breaker:\n")		
-		for j in range(0,len(mappool)):
+		for j in range(len(mappool)):
 			if mappool[j][2]==i:
 				mapnumber=mapnumber+1
 				scriptinstructions.write(("Map {}: {} (Shortcut: {})\n").format(mapnumber,mappool[j][1],letters[j]))	
-	for i in range(0,len(mappool)):
+	for i in range(len(mappool)):
 		if mappool[i][2]==1:
 			mappool[i][2]="nomod"
 		if mappool[i][2]==2:
@@ -384,13 +240,12 @@ def logmap(mappool):
 	Sleep,	1000
 	Send,	{{!}}mp mods {} {{ENTER}}
 Return\n\n""").format(letters[i],mappool[i][0],mappool[i][2]))				
-def mappoolsavefile():
-	global mappool
+def mappoolsavefile(mappool):
 	if input("(y/n) Save maps to mapfile? ").lower()=="y":
 		savefilename=input("(txt files with this name will be overwritten) Save to what file name? ")
 		scriptmappoolsave=open("{}.txt".format(savefilename),"w")
-		for i in range(0,len(mappool)):
-			scriptmappoolsave.write("{},{},{}\n".format(mappool[i][0],mappool[i][1],mappool[i][2]))
+		for i in mappool:
+			scriptmappoolsave.write("{},{},{}\n".format(i[0],i[1],i[2]))
 		scriptmappoolsave.close()
 def savefile(tournamentname):
 	if input("(y/n) Create save file? ").lower()=="y":
@@ -416,6 +271,7 @@ def scriptstart(realcount,playerstrue):
 	global tournamentname
 	global tournamentsize
 	global tournamentsubs
+        
 	scriptmain.write((""";{}{}{},{}
 #NoEnv
 SendMode Input
@@ -431,19 +287,20 @@ Return\n
 >^F4::
 	Send,	Are you ready for your {} match? {{ENTER}}
 Return\n\n""").format(tournamentsize,tournamentsubs,realcount,playerstrue,tournamentsize*2,tournamentmode,tournamentname))
+def loadscript():
+        return open("{}.txt".format(tournamentname),"w"),open("{} instructions.txt".format(tournamentname),"w")
 option=input("""0 - New Tournament File (destroys files with same tournament name)
 1 - Update existing file
 2 - Import map file\n""")
 if option=="0":
-	tournamentsettings()
-	scriptmain=open("{}.txt".format(tournamentname),"w")
-	scriptinstructions=open("{} instructions.txt".format(tournamentname),"w")
-	playerchoice("n")
-	scriptstart(tournamentsize*2+len(TeamRedSubs)+len(TeamBlueSubs),play)
+	settings=tournamentsettings()
+	scriptmain,scriptinstructions=loadscript()
+	teams=playerchoice("n")
+	scriptstart(len(teams['main'][0]+teams['subs'][0]+teams['main'][1]+teams['subs'][1]),settings['players'])
 	mappoolcreation()	
-	mappoolsavefile()
+	mappoolsavefile(mappool)
 	logmap(mappool)
-	playerwrite()
+	playerwrite(settings,scriptmain,scriptinstructions)
 	savefile(tournamentname)
 	os.rename("{}.txt".format(tournamentname),"{}.ahk".format(tournamentname))
 if option=="1":
@@ -481,7 +338,7 @@ if option=="1":
 		scriptmain.write(file[i])
 	for i in range(0,len(file2)):
 		scriptinstructions.write(file2[i])
-	playerwrite()
+	playerwrite(settings,scriptmain,scriptinstructions)
 	savefile(tournamentname)
 	os.rename("{}.txt".format(tournamentname),"{}.ahk".format(tournamentname))
 if option=="2":
@@ -508,74 +365,74 @@ if option=="2":
 	playerchoice("n")
 	scriptstart(tournamentsize*2+len(TeamRedSubs)+len(TeamBlueSubs),play)
 	logmap(mappool)
-	playerwrite()
+	playerwrite(settings,scriptmain,scriptinstructions)
 	savefile(tournamentname)
 	os.rename("{}.txt".format(tournamentname),"{}.ahk".format(tournamentname))
-if option=="3":
-	inputmethod=input("""0 - Start from scratch
-1 - Import map file
-2 - Import from savefile\n""")
-	if inputmethod=="0":
-		tournamentsettings()
-		playerchoice("y")
-		mappoolcreation()
-		mappoollist=[]
-		#map prep macros here
-		bannumber=intcreate(input("Bans per team: "))
-		bo=intcreate(input("Best of: "))
-		for i in range(0,len(mappool)):
-			mappoollist.append([mappool[i][1],letters[i]])
-		print("Please ask captains to roll.")
-		roll=input("(1/2) Higher team: ")
-		if roll=="1":
-			team1=[team1name,"blue"]
-			team2=[team2name,"red"]
-		else:
-			team1=[team2name,"red"]
-			team2=[team1name,"blue"]
-		warmup=[]
-		team1bans=[]
-		team2bans=[]
-		for i in range(0,2):
-			warmup.append(input("Warmup: "))
-		for i in range(0,len(mappool)):
-			print("{} - {}".format(mappool[i][1],letters[i]))
-		print("(use map letters, not name)")
-		for i in range(0,bannumber*2):
-			print(i/2)
-			if (i/2).is_integer():
-				team1bans.append(input("Team ({}) Ban {}: ".format(team1[0],int((i+2)/2))))
-			else:
-				team2bans.append(input("Team ({}) Ban {}: ".format(team2[0],int((i+1)/2))))
-		tempscript=open("tempscript.txt","w")
-		tempscript.write("""SendMode Input
-^F2::\n""")
-		better1bans=[]
-		better2bans=[]
-		for i in range(0,bannumber):
-			for j in range(0,len(mappool))):
-				if team1bans[i]==letters[j]:
-					better1bans.append(mappool[j][1])
-		for i in range(0,bannumber):
-			for j in range(0,len(mappool))):
-				if team2bans[i]==letters[j]:
-					better2bans.append(mappool[j][1])
-		if roll=="1":
-			tempscript.write("""	Send 	{} bans: {{SHIFT}}{{ENTER}}
-	Send 	{} {{SHIFT}}{{ENTER}}
-	Send	{} bans: {{SHIFT}}{{ENTER}}
-	Send 	{} {{ENTER}}
-ExitApp""".format(team1name," & ".join(better1bans),team2name," & ".join(team2bans)))
-		else:
-			tempscript.write("""	Send 	{} bans: {{SHIFT}}{{ENTER}}
-	Send 	{} {{SHIFT}}{{ENTER}}
-	Send	{} bans: {{SHIFT}}{{ENTER}}
-	Send 	{} {{ENTER}}
-ExitApp""".format(team1name," & ".join(better2bans),team2name," & ".join(team1bans)))
-		tempscript.close()
-		os.rename("tempscript.txt","tempscript.ahk")
-		os.startfile("tempscript.ahk")
-		mappoolsavefile() 
+##if option=="3":
+##	inputmethod=input("""0 - Start from scratch
+##1 - Import map file
+##2 - Import from savefile\n""")
+##	if inputmethod=="0":
+##		tournamentsettings()
+##		playerchoice("y")
+##		mappoolcreation()
+##		mappoollist=[]
+##		#map prep macros here
+##		bannumber=intcreate(input("Bans per team: "))
+##		bo=intcreate(input("Best of: "))
+##		for i in range(0,len(mappool)):
+##			mappoollist.append([mappool[i][1],letters[i]])
+##		print("Please ask captains to roll.")
+##		roll=input("(1/2) Higher team: ")
+##		if roll=="1":
+##			team1=[team1name,"blue"]
+##			team2=[team2name,"red"]
+##		else:
+##			team1=[team2name,"red"]
+##			team2=[team1name,"blue"]
+##		warmup=[]
+##		team1bans=[]
+##		team2bans=[]
+##		for i in range(0,2):
+##			warmup.append(input("Warmup: "))
+##		for i in range(0,len(mappool)):
+##			print("{} - {}".format(mappool[i][1],letters[i]))
+##		print("(use map letters, not name)")
+##		for i in range(0,bannumber*2):
+##			print(i/2)
+##			if (i/2).is_integer():
+##				team1bans.append(input("Team ({}) Ban {}: ".format(team1[0],int((i+2)/2))))
+##			else:
+##				team2bans.append(input("Team ({}) Ban {}: ".format(team2[0],int((i+1)/2))))
+##		tempscript=open("tempscript.txt","w")
+##		tempscript.write("""SendMode Input
+##^F2::\n""")
+##		better1bans=[]
+##		better2bans=[]
+##		for i in range(0,bannumber):
+##			for j in range(0,len(mappool))):
+##				if team1bans[i]==letters[j]:
+##					better1bans.append(mappool[j][1])
+##		for i in range(0,bannumber):
+##			for j in range(0,len(mappool))):
+##				if team2bans[i]==letters[j]:
+##					better2bans.append(mappool[j][1])
+##		if roll=="1":
+##			tempscript.write("""	Send 	{} bans: {{SHIFT}}{{ENTER}}
+##	Send 	{} {{SHIFT}}{{ENTER}}
+##	Send	{} bans: {{SHIFT}}{{ENTER}}
+##	Send 	{} {{ENTER}}
+##ExitApp""".format(team1name," & ".join(better1bans),team2name," & ".join(team2bans)))
+##		else:
+##			tempscript.write("""	Send 	{} bans: {{SHIFT}}{{ENTER}}
+##	Send 	{} {{SHIFT}}{{ENTER}}
+##	Send	{} bans: {{SHIFT}}{{ENTER}}
+##	Send 	{} {{ENTER}}
+##ExitApp""".format(team1name," & ".join(better2bans),team2name," & ".join(team1bans)))
+##		tempscript.close()
+##		os.rename("tempscript.txt","tempscript.ahk")
+##		os.startfile("tempscript.ahk")
+##		mappoolsavefile(mappool) 
 if option=="4":
 	while True:
 		try:
