@@ -100,15 +100,15 @@ def playerchoice(settings,exemption):
 	'subs':[],
 }]
 	if exemption=="y" or input("(y/n) Do you want players to be added to the hotkey: ").lower()=="y":
-		settings['players']==True
+		settings['players']=True
 		for team in range(2):
 			while True:
 				buffer=input("Team {} name: ".format(team+1))
 				if input('(y/n) Name set to "{}". Confirm? '.format(buffer)).lower()=='y':
-					teams['name'][team]=buffer
+					teams[team]['name']=buffer
 					break
 			while True:
-				cls()
+				#cls()
 				print("""Put * before name if player is a sub. Put - before name if deleting. Type !confirm when finished.
 Team {}:
 Main players:""".format(team+1))
@@ -127,25 +127,25 @@ Main players:""".format(team+1))
 						print("Not enough main players.")
 				elif buffer[0]=="-":
 					try:
-						teams[team]['main'].delete(buffer[1:])
+						teams[team]['main'].remove(buffer[1:])
 						print("Main player {} deleted.".format(buffer[1:]))
 					except:
 						try:
-							teams[team]['subs'].delete(buffer[1:])
+							teams[team]['subs'].remove(buffer[1:])
 							print("Sub {} deleted.".format(buffer[1:]))
 						except:
 							print("No player found with this name.")
 				else:
-					if listcheck(teams[team]['subs'],buffer[1:])==False or listcheck(teams[team]['main'],buffer[1:])==False:
+					if listcheck(teams[team]['subs'],buffer[1:])==False or listcheck(teams[team]['main'],buffer)==False:
 						print("Player with this name already found.")  
-					elif buffer[0]=="*" and len(teams[team]['subs'])<len(settings['subs']):
+					elif buffer[0]=="*" and len(teams[team]['subs'])<settings['subs']:
 						teams[team]['subs'].append(buffer[1:])
-					elif len(teams[team]['main'])<len(settings['main']):
-						teams[team]['main'].append(buffer[1:])
+					elif len(teams[team]['main'])<settings['size']:
+						teams[team]['main'].append(buffer)
 					else:
 						print("You have reached the maximum amount of players for this category.")
 	return settings,teams
-	
+
 def playerwrite(settings,teams,scriptmain,scriptinstructions):
 	playertype={0:{'type':'main','hotkey':'^'},
 	1:{'type':'subs','hotkey':'+'}
@@ -156,7 +156,7 @@ def playerwrite(settings,teams,scriptmain,scriptinstructions):
 	Send,	{{!}}mp make {}: ({}) vs ({})
 Return\n\n""").format(settings['name'],teams[0]['name'],teams[1]['name']))
 		for team in range(2):
-			scriptinstructions.write(("-----------------\nTeam {} players ({}):\n".format(teams['color'][team])))
+			scriptinstructions.write(("-----------------\nTeam {} players ({}):\n".format(teams[team]['color'])))
 			for playertypenum in range(2):
 				playercounter=0
 				for player in teams[team][playertype[playertypenum]['type']]:
@@ -304,7 +304,7 @@ def savefile(name):
 		os.rename("savefile-{}.txt".format(name),"savefile-{}.xddd".format(name))
 
 while True:
-	cls()
+	#cls()
 	option=input("""0 - New tournament file (destroys files with same tournament name)
 1 - Update existing file
 2 - Import map file\n""")
