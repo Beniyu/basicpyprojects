@@ -100,12 +100,12 @@ def playerchoice(settings,exemption):
 	'subs':[],
 }]
 	if exemption=="y" or input("(y/n) Do you want players to be added to the hotkey: ").lower()=="y":
-		settings['players']==True
+		settings['players']=True
 		for team in range(2):
 			while True:
 				buffer=input("Team {} name: ".format(team+1))
 				if input('(y/n) Name set to "{}". Confirm? '.format(buffer)).lower()=='y':
-					teams['name'][team]=buffer
+					teams[team]['name']=buffer
 					break
 			while True:
 				cls()
@@ -118,7 +118,9 @@ Main players:""".format(team+1))
 				for player in teams[team]['subs']:
 					print("*{}".format(player))
 				buffer=input("Enter name: ")
-				if buffer.lower()=="!help":
+				if buffer=="":
+					print("You entered nothing.")
+				elif buffer.lower()=="!help":
 					print("Put * before name if player is a sub. Put - before name if deleting. Type confirm when finished.")
 				elif buffer.lower()=="!confirm":
 					if len(teams[team]['main'])==settings['size']:
@@ -127,21 +129,21 @@ Main players:""".format(team+1))
 						print("Not enough main players.")
 				elif buffer[0]=="-":
 					try:
-						teams[team]['main'].delete(buffer[1:])
+						teams[team]['main'].remove(buffer[1:])
 						print("Main player {} deleted.".format(buffer[1:]))
 					except:
 						try:
-							teams[team]['subs'].delete(buffer[1:])
+							teams[team]['subs'].remove(buffer[1:])
 							print("Sub {} deleted.".format(buffer[1:]))
 						except:
 							print("No player found with this name.")
 				else:
-					if listcheck(teams[team]['subs'],buffer[1:])==False or listcheck(teams[team]['main'],buffer[1:])==False:
+					if listcheck(teams[team]['subs'],buffer[1:])==False or listcheck(teams[team]['main'],buffer)==False:
 						print("Player with this name already found.")  
-					elif buffer[0]=="*" and len(teams[team]['subs'])<len(settings['subs']):
+					elif buffer[0]=="*" and len(teams[team]['subs'])<settings['subs']:
 						teams[team]['subs'].append(buffer[1:])
-					elif len(teams[team]['main'])<len(settings['main']):
-						teams[team]['main'].append(buffer[1:])
+					elif len(teams[team]['main'])<settings['size']:
+						teams[team]['main'].append(buffer)
 					else:
 						print("You have reached the maximum amount of players for this category.")
 	return settings,teams
@@ -156,11 +158,11 @@ def playerwrite(settings,teams,scriptmain,scriptinstructions):
 	Send,	{{!}}mp make {}: ({}) vs ({})
 Return\n\n""").format(settings['name'],teams[0]['name'],teams[1]['name']))
 		for team in range(2):
-			scriptinstructions.write(("-----------------\nTeam {} players ({}):\n".format(teams['color'][team])))
+			scriptinstructions.write(("-----------------\nTeam {} players ({}):\n".format(teams[team]['name'],teams[team]['color'])))
 			for playertypenum in range(2):
 				playercounter=0
 				for player in teams[team][playertype[playertypenum]['type']]:
-					playerbuffer=player[playercounter]
+					playerbuffer=player
 					if playertypenum==1:
 						playerbuffer="*{}".format(playerbuffer)
 					scriptmain.write((""">{0}{1}::
@@ -192,8 +194,8 @@ Return\n\n""").format(settings['name'],teams[0]['name'],teams[1]['name']))
 	}}
 	Sleep,  1000
 	Send,	{{!}}mp team {2} {3} {{ENTER}}
-Return\n\n""").format(playertype[playertypenum]['hotkey'],hotkey[team][playercounter],osufriendlyname(player[playercounter]),teams[team]['color']))
-					scriptinstructions.write(playerbuffer,end="\n\n")
+Return\n\n""").format(playertype[playertypenum]['hotkey'],hotkey[team][playercounter],osufriendlyname(player),teams[team]['color']))
+					scriptinstructions.write(playerbuffer+"\n")
 					playercounter+=1
 	scriptinstructions.write("""-----------------
 Instructions:
@@ -212,8 +214,8 @@ def mappoolcreation():
 	print("Put !confirm when finished. Put - before map name to delete a map. ( syntax: -(id) example: -8 )")
 	while True:
 		mapcounter=0
-		for map in mappool:
-			print("ID {}: \"{}\" - mode {} - map-id {}".format(mapcounter,map['name'],map['mod'],map['id']))
+		for mapp in mappool:
+			print("ID {}: \"{}\" - mode {} - map-id {}".format(mapcounter,mapp['name'],mapp['mod'],mapp['id']))
 			mapcounter+=1
 		buffer=input("Map name: ")
 		if buffer=="!help":
@@ -231,12 +233,12 @@ def mappoolcreation():
 		elif mapcounter==26:
 			print("This program only supports 26 maps. Please delete some if you want to add more.")
 		else:
-			id=input("Map ID: ")
+			idd=input("Map ID: ")
 			while True:
-				if id.isdigit()==False:
-					id=input("Invalid map ID (not an integer). Please retype: ")
-				elif int(id)<0:
-					id=input("Invalid map ID (negative). Please retype: ")
+				if idd.isdigit()==False:
+					idd=input("Invalid map ID (not an integer). Please retype: ")
+				elif int(idd)<0:
+					idd=input("Invalid map ID (negative). Please retype: ")
 				else:
 					break
 			mod=input("(1:nomod, 2:hidden, 3:hardrock, 4:doubletime, 5:freemod, 6:tiebreaker)\nMap mod: ")
@@ -248,7 +250,7 @@ def mappoolcreation():
 				else:
 					break
 			mappool.append({'name': buffer,
-	'id': int(id),
+	'id': int(idd),
 	'mod': int(mod)
 })
 	return mappool
@@ -264,25 +266,25 @@ def logmap(mappool,scriptmain,scriptinstructions):
 }
 	for mod in range(1,7):
 		scriptinstructions.write("-----------------\n{}:\n".format(modtype[mod]['name']))		
-		for map in range(len(mappool)):
-			if mappool[map]['mod']==mod:
+		for mapp in range(len(mappool)):
+			if mappool[mapp]['mod']==mod:
 				mapnumber=mapnumber+1
-				scriptinstructions.write(("Map {}: {} (Shortcut: {})\n").format(mapnumber,mappool[map]['name'],letters[map]))	
+				scriptinstructions.write(("Map {}: {} (Shortcut: {})\n").format(mapnumber,mappool[mapp]['name'],letters[mapp]))	
 	mapcounter=0
-	for map in mappool:
+	for mapp in mappool:
 		scriptmain.write((""">^{}::
 	Send,   {{!}}mp map {} {{ENTER}}
 	Sleep,	1000
 	Send,	{{!}}mp mods {} {{ENTER}}
-Return\n\n""").format(letters[mapcounter],map['id'],modtype[map['mod']]['mod']))		
+Return\n\n""").format(letters[mapcounter],mapp['id'],modtype[mapp['mod']]['mod']))		
 		mapcounter+=1
 
 def mappoolsavefile(mappool):
 	if input("(y/n) Save maps to mapfile? ").lower()=="y":
 		savefilename=input("(txt files with this name will be overwritten) Save to what file name? ")
 		scriptmappoolsave=open("{}.txt".format(savefilename),"w")
-		for map in mappool:
-			scriptmappoolsave.write("{},{},{}\n".format(map['name'],map['id'],map['mod']))
+		for mapp in mappool:
+			scriptmappoolsave.write("{},{},{}\n".format(mapp['name'],mapp['id'],mapp['mod']))
 		scriptmappoolsave.close()
 		
 def savefile(name):
@@ -290,24 +292,28 @@ def savefile(name):
 		scriptmain,scriptinstructions=loadscript(name,"r")
 		scriptsavefile=open("savefile-{}.txt".format(name),"w")
 		linecounter=0
-		list=[]
+		list1=[]
 		for line in scriptmain:
-			list.append(line)
+			list1.append(line)
 			linecounter=linecounter+1
 		for line in scriptinstructions:
-			list.append(line)
+			list1.append(line)
 		scriptsavefile.write(str(linecounter)+"\n")
-		for i in range(0,len(list)):
-			scriptsavefile.write(list[i])
+		for i in range(0,len(list1)):
+			scriptsavefile.write(list1[i])
 		endscript()
 		scriptsavefile.close()
 		os.rename("savefile-{}.txt".format(name),"savefile-{}.xddd".format(name))
 
 while True:
 	cls()
-	option=input("""0 - New tournament file (destroys files with same tournament name)
+	option=input("""Python file created by Beniyu.
+Please install AutoHotkeys if you do not have it yet.
+0 - New tournament file (destroys files with same tournament name)
 1 - Update existing file
-2 - Import map file\n""")
+2 - Import map file
+3 - Create map file through python
+4 - Recreate tournament file using savefile\n""")
 
 	if option=="0":
 		settings=tournamentsettings()
@@ -330,7 +336,7 @@ while True:
 				break
 			except:
 				print("You have no existing file for this tournament.")
-		scriptmain,scriptinstructions=loadscript("r")
+		scriptmain,scriptinstructions=loadscript(name,"r")
 		filemain=[]
 		fileinstructions=[]
 		marker=scriptmain.readline()
@@ -347,15 +353,20 @@ while True:
 				fileinstructions.pop()
 		else:
 			filemain.append("\n")
-		teams,settings=playerchoice(settings,"y")
+		settings['size']=int(marker[1])
+		settings['subs']=int(marker[2])
+		settings['name']=name
+		settings['players']=True
+		settings,teams=playerchoice(settings,"y")
 		endscript()
 		scriptmain,scriptinstructions=loadscript(name,"w")
-		scriptmain.write(";{}{}{},yes\n".format(size,subs,(size*2+teams[0]['subs']+teams[1]['subs'])))
+		scriptmain.write(";{}{}{},yes\n".format(settings['size'],settings['subs'],len(teams[0]['main']+teams[0]['subs']+teams[1]['main']+teams[1]['subs'])))
 		for line in filemain:
 			scriptmain.write(line)
 		for line in fileinstructions:
 			scriptinstructions.write(line)
 		playerwrite(settings,teams,scriptmain,scriptinstructions)
+		endscript()
 		savefile(name)
 		os.rename("{}.txt".format(name),"{}.ahk".format(name))
 		
@@ -370,17 +381,17 @@ while True:
 				print("No map import file with the name {}.txt".format(importfile))
 		try:		
 			for line in mapimport:
-				name,id,mod=line.split(",")
+				name,idd,mod=line.split(",")
 				if int(mod)<1 or int(mod)>6:
 					print("Bad file (invalid mod values)")
 					time.sleep(3)
 					quit()
-				if int(id)<0:
+				if int(idd)<0:
 					print("Bad file (negative map ids)")
 					time.sleep(3)
 					quit()
 				mappool.append({'name':name,
-		'id':int(id),
+		'id':int(idd),
 		'mod':int(mod)
 	})
 		except:
@@ -397,71 +408,13 @@ while True:
 		savefile(settings['name'])
 		os.rename("{}.txt".format(settings['name']),"{}.ahk".format(settings['name']))
 		
-	##if option=="3":
-	##	inputmethod=input("""0 - Start from scratch
-	##1 - Import map file
-	##2 - Import from savefile\n""")
-	##	if inputmethod=="0":
-	##		tournamentsettings()
-	##		playerchoice("y")
-	##		mappoolcreation()
-	##		mappoollist=[]
-	##		#map prep macros here
-	##		bannumber=intcreate(input("Bans per team: "))
-	##		bo=intcreate(input("Best of: "))
-	##		for i in range(0,len(mappool)):
-	##			mappoollist.append([mappool[i][1],letters[i]])
-	##		print("Please ask captains to roll.")
-	##		roll=input("(1/2) Higher team: ")
-	##		if roll=="1":
-	##			team1=[team1name,"blue"]
-	##			team2=[team2name,"red"]
-	##		else:
-	##			team1=[team2name,"red"]
-	##			team2=[team1name,"blue"]
-	##		warmup=[]
-	##		team1bans=[]
-	##		team2bans=[]
-	##		for i in range(0,2):
-	##			warmup.append(input("Warmup: "))
-	##		for i in range(0,len(mappool)):
-	##			print("{} - {}".format(mappool[i][1],letters[i]))
-	##		print("(use map letters, not name)")
-	##		for i in range(0,bannumber*2):
-	##			print(i/2)
-	##			if (i/2).is_integer():
-	##				team1bans.append(input("Team ({}) Ban {}: ".format(team1[0],int((i+2)/2))))
-	##			else:
-	##				team2bans.append(input("Team ({}) Ban {}: ".format(team2[0],int((i+1)/2))))
-	##		tempscript=open("tempscript.txt","w")
-	##		tempscript.write("""SendMode Input
-	##^F2::\n""")
-	##		better1bans=[]
-	##		better2bans=[]
-	##		for i in range(0,bannumber):
-	##			for j in range(0,len(mappool))):
-	##				if team1bans[i]==letters[j]:
-	##					better1bans.append(mappool[j][1])
-	##		for i in range(0,bannumber):
-	##			for j in range(0,len(mappool))):
-	##				if team2bans[i]==letters[j]:
-	##					better2bans.append(mappool[j][1])
-	##		if roll=="1":
-	##			tempscript.write("""	Send 	{} bans: {{SHIFT}}{{ENTER}}
-	##	Send 	{} {{SHIFT}}{{ENTER}}
-	##	Send	{} bans: {{SHIFT}}{{ENTER}}
-	##	Send 	{} {{ENTER}}
-	##ExitApp""".format(team1name," & ".join(better1bans),team2name," & ".join(team2bans)))
-	##		else:
-	##			tempscript.write("""	Send 	{} bans: {{SHIFT}}{{ENTER}}
-	##	Send 	{} {{SHIFT}}{{ENTER}}
-	##	Send	{} bans: {{SHIFT}}{{ENTER}}
-	##	Send 	{} {{ENTER}}
-	##ExitApp""".format(team1name," & ".join(better2bans),team2name," & ".join(team1bans)))
-	##		tempscript.close()
-	##		os.rename("tempscript.txt","tempscript.ahk")
-	##		os.startfile("tempscript.ahk")
-	##		mappoolsavefile(mappool) 
+	if option=="3":
+		mappool=mappoolcreation()
+		savefilename=input("(txt files with this name will be overwritten) Save to what file name? ")
+		scriptmappoolsave=open("{}.txt".format(savefilename),"w")
+		for mapp in mappool:
+			scriptmappoolsave.write("{},{},{}\n".format(mapp['name'],mapp['id'],mapp['mod']))
+		scriptmappoolsave.close()
 
 	if option=="4":
 		while True:
