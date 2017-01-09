@@ -158,7 +158,7 @@ def playerwrite(settings,teams,scriptmain,scriptinstructions):
 	Send,	{{!}}mp make {}: ({}) vs ({})
 Return\n\n""").format(settings['name'],teams[0]['name'],teams[1]['name']))
 		for team in range(2):
-			scriptinstructions.write(("-----------------\nTeam {} players ({}):\n".format(teams[team]['name'],teams[team]['color'])))
+			scriptinstructions.write(("-----------------\nTeam {} players ({}):\n".format(teams[team]['color'],teams[team]['name'])))
 			for playertypenum in range(2):
 				playercounter=0
 				for player in teams[team][playertype[playertypenum]['type']]:
