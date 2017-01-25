@@ -52,15 +52,19 @@ def calculation(number1,number2,operation):
         return number1*number2
 
 def confirm(user_input):
-    if total_attempts!=-1 and computer_answer==remove_letters(user_input):
-        correct_attempts+=1
-        pop_up('correct')
-    else:
-        pop_up('incorrect')
-    total_attempts+=1
-    correct_counter.config(text="Correct: {}".format(correct_attempts))
+    global attempts,computer_answer,user_input_raw
+    user_input_raw.set('')
+    if attempts['total']!=-1:
+        user_answer=remove_letters(user_input)
+        if user_answer==computer_answer:
+            attempts['correct']+=1
+            pop_up('correct')
+        else:
+            pop_up('incorrect')
+    attempts['total']+=1
+    correct_counter.config(text="Correct: {}".format(attempts['correct']))
     computer_answer=arithmetic_question()
-    return total_attempts,correct_attempts,computer_answer
+    print(computer_answer)
 
 def arithmetic_question():
     typeofproblem=r.choice(['times','plus','minus','divide'])
@@ -85,6 +89,7 @@ def arithmetic_question():
 ##    total=0
 
 settings={'mode':'regular'}
+attempts={'total':-1,'correct':0}
 correct_attempts=0
 total_attempts=-1
 computer_answer=0
@@ -97,16 +102,22 @@ monitor_width=root.winfo_screenwidth()
 monitor_height=root.winfo_screenheight()
 screen_width=800
 screen_height=291
+x=0
 root.geometry('{}x{}+{}+{}'.format(screen_width,screen_height,window_calculation(monitor_width,screen_width),window_calculation(monitor_height,screen_height)))
 root.title('Arithmetic program')
+menu=tk.Menu(root)
+dropdownMenu=tk.Menu(menu,tearoff=0)
+menu.add_cascade(label='Test',menu=dropdownMenu)
+root.config(menu=menu)
 questionWindow=tk.Label(root,text="Welcome!",relief='raised',font=('Times',72))
 questionWindow.pack()
-user_input=tk.StringVar()
-answerWindow=tk.Entry(root,textvariable=user_input,font=('Times',36))
+user_input_raw=tk.StringVar()
+answerWindow=tk.Entry(root,textvariable=user_input_raw,font=('Times',36))
 answerWindow.pack(fill='x',expand='yes')
 buttonFrame=tk.Frame(root)
 buttonFrame.pack(fill='x',expand='yes')
-tk.Button(buttonFrame,text='Confirm',font=('Times',36),command=lambda: confirm(user_input.get(),correct_attempts,total_attempts,computer_answer)).pack(side='left',fill='x',expand='yes')
+tk.Button(buttonFrame,text='Confirm',font=('Times',36),command=lambda: confirm(user_input_raw.get())).pack(side='left',fill='x',expand='yes')
+root.bind('<Return>',lambda x: confirm(user_input_raw.get()))
 tk.Button(buttonFrame,text='End',font=('Times',36),command=finish_program).pack(side='right',expand='no')
 correct_counter=tk.Label(root,text="Correct: 0")
 correct_counter.pack()
