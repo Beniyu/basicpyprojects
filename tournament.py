@@ -44,6 +44,10 @@ def tournamentsettings():
                 while not (subs>=0 and subs<=4):
                     print("This program cannot handle more than 4 subs.")
                     subs=intcreate(input("How many maximum subs (per team): "))
+                score=intcreate(input("What score system would you like to use (1/2): "))
+                while not (score==1 or score==2):
+                    print("Not valid score system.")
+                    score=intcreate(input("What score system would you like to use (1/2): "))
                 if size==1:
                     mode="0"
                 else:
@@ -51,12 +55,18 @@ def tournamentsettings():
                 if input("""Tournament name: {}
 Tournament team size: {}
 Subs per team: {}
-(y/n) Confirm? """.format(name,size,subs)).lower() == "y":
+ScoreV{}
+(y/n) Confirm? """.format(name,size,subs,score)).lower() == "y":
+                        if score==1:
+                                score=0
+                        if score==2:
+                                score=3
                         return {
         'name': name,
         'size': size,
         'subs': subs,
         'mode': mode,
+        'score': score,
         'players': False
 } 
         
@@ -73,14 +83,14 @@ SetWorkingDir %A_ScriptDir%\n
 >^F2::
 	Send,	{{!}}mp size {} {{ENTER}}
 	Sleep,  1000
-	Send,	{{!}}mp set {} {{ENTER}}
+	Send,	{{!}}mp set {} {} {{ENTER}}
 Return\n
 >^F3::
 	Send,	{{!}}mp start 5
 Return\n
 >^F4::
 	Send,	Are you ready for your {} match? {{ENTER}}
-Return\n\n""").format(settings['size'],settings['subs'],playercount,players,settings['size']*2,settings['mode'],settings['name']))
+Return\n\n""").format(settings['size'],settings['subs'],playercount,players,settings['size']*2,settings['mode'],settings['score'],settings['name']))
 
 def loadscript(name,mode):
 	return open("{}.txt".format(name),mode),open("{} instructions.txt".format(name),mode)
@@ -109,7 +119,7 @@ def playerchoice(settings,exemption):
 					break
 			while True:
 				cls()
-				print("""Put * before name if player is a sub. Put - before name if deleting. Type !confirm when finished.
+				print("""Put * before name if player is a sub. Put : before name if deleting. Type !confirm when finished.
 Team {}:
 Main players:""".format(team+1))
 				for player in teams[team]['main']:
@@ -121,13 +131,13 @@ Main players:""".format(team+1))
 				if buffer=="":
 					print("You entered nothing.")
 				elif buffer.lower()=="!help":
-					print("Put * before name if player is a sub. Put - before name if deleting. Type confirm when finished.")
+					print("Put * before name if player is a sub. Put : before name if deleting. Type confirm when finished.")
 				elif buffer.lower()=="!confirm":
 					if len(teams[team]['main'])==settings['size']:
 						break
 					else:
 						print("Not enough main players.")
-				elif buffer[0]=="-":
+				elif buffer[0]==":":
 					try:
 						teams[team]['main'].remove(buffer[1:])
 						print("Main player {} deleted.".format(buffer[1:]))
@@ -211,7 +221,7 @@ F4 for generic message on asking if player is ready""")
 
 def mappoolcreation():
 	mappool=[]
-	print("Put !confirm when finished. Put - before map name to delete a map. ( syntax: -(id) example: -8 )")
+	print("Put !confirm when finished. Put : before map name to delete a map. ( syntax: -(id) example: -8 )")
 	while True:
 		mapcounter=0
 		for mapp in mappool:
@@ -225,7 +235,7 @@ def mappoolcreation():
 				break
 			else:
 				print("Not enough maps.")
-		elif buffer[0]=="-":
+		elif buffer[0]==":":
 			try:
 				del mappool[intcreate(buffer[1:])]
 			except:
