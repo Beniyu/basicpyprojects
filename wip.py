@@ -19,6 +19,7 @@ def window_calculation(monitor_dimension,window_dimension):
     return int((monitor_dimension/2)-(window_dimension/2))
 
 def pop_up(type_of_message):
+    global delay
     pop_up=tk.Toplevel()
     pop_up.title('')
     pop_up.overrideredirect(1)
@@ -28,14 +29,31 @@ def pop_up(type_of_message):
     if type_of_message=='incorrect':
         message_pop_up.config(text='Incorrect',background='red',foreground='white',font=('Times','300'),pady=240,padx=78)
     message_pop_up.pack(fill='both',expand='yes')
-    pop_up.after(1000,lambda: pop_up.destroy())
+    pop_up.after(int(delay*1000),lambda: pop_up.destroy())
 
 def change_button_1(text):
     button1.config(text=text)
 
-def settings_menu():
-    print('Not implemented')
+def create_setting_visual(window,setting,name,row,column,*options):
+    tk.Label(window,text=name,font='Bold').grid(row=row,column=column)
+    tk.OptionMenu(window,setting,*options).grid(row=row+1,column=column)
 
+def finish_setting(settings,delay_temp):
+    global delay
+    delay=delay_temp
+    settings.destroy()
+    
+def settings_menu():
+    global difficulty,mode,setting_count,delay
+    settings=tk.Toplevel()
+    create_setting_visual(settings,difficulty,'Difficulty',0,0,'Easy','Normal','Hard')
+    create_setting_visual(settings,mode,'Mode',0,1,'Regular','Unlimited')
+    delay_var=tk.DoubleVar()
+    delay_var.set(delay)
+    tk.Label(settings,text='Popup delay (s)',font='Bold').grid(row=2,column=0)
+    delay_temp=tk.Scale(settings,from_=0,to=2,resolution=0.1,orient='horizontal',variable=delay_var).grid(row=3,column=0)
+    tk.Button(settings,text='Close',command=lambda: finish_setting(settings,delay_var.get())).grid(row=4,column=0,columnspan=2,sticky='n',ipadx=70)
+    
 def check_answer():
     global computer_answer,user_input_raw,attempts
     user_answer=remove_letters(user_input_raw.get())
@@ -91,7 +109,6 @@ def arithmetic_question_generation():
 ##if settings['mode']=='unlimited':
 ##    total=0
 
-settings={'mode':'regular'}
 attempts={'total':-1,'correct':0}
 correct_attempts=0
 total_attempts=-1
@@ -103,6 +120,12 @@ operations={'times':{'display':'x','boundary':[1,12]},
     'divide':{'display':'÷','boundary':[1,12]}}
 
 root=tk.Tk()
+delay=1
+difficulty=tk.StringVar()
+difficulty.set('Normal')
+mode=tk.StringVar()
+mode.set('Regular')
+
 monitor_width=root.winfo_screenwidth()
 monitor_height=root.winfo_screenheight()
 screen_width=800
@@ -147,14 +170,7 @@ tk.Button(buttonFrame,text='End',font=('Times',36),command=finish_program).pack(
 correct_counter=tk.Label(root,text="Correct: 0",font=('Times',10,'bold'))
 correct_counter.pack()
 
-#print('Welcome to the Under 11 Arithmetic program.\nOtherwise, type in the correct answer.\n')
-
-##if settings['mode']=='regular':
-##    for attempt in range(10):
-##        correct,total=arithmetic(correct,total)
-##if settings['unlimited']=='unlimited':
-##    while True:
-##        
-##print('You got {}/{} correct.'.format(correct,total))
-
 root.mainloop()
+
+
+
