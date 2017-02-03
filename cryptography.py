@@ -26,6 +26,8 @@ def caeser_cipher(string,key):
         else:
             encrypted_string+=character
     return encrypted_string
-                                  
 
+def all_caeser_ciphers(string):
+    for key in range(1,27):
+        print(caeser_cipher(string,key))
             
